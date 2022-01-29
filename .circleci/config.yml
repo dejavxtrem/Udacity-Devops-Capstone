@@ -75,3 +75,9 @@ jobs:
           command: |
             . ~/.capstone/bin/activate
             make lint
+
+
+workflows:
+  deployments:
+    jobs:
+      - lintcheck
