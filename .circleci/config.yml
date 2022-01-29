@@ -55,7 +55,7 @@ jobs:
             chmod +x /bin/hadolint
       - save_cache:
           paths:
-            - ./backend
+            - ./backend/backend
           key: v1-dependencies-{{ checksum "requirements.txt" }}
         
       - run:
@@ -65,7 +65,6 @@ jobs:
             ls -l
             cd backend
             . ~/.capstone/bin/activate
-            cd backend
             make lint
 
 
