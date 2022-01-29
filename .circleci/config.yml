@@ -1,0 +1,77 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2.1
+
+
+orbs:
+  aws-eks: circleci/aws-eks@1.1.0
+  kubernetes: circleci/kubernetes@0.4.0
+  docker: circleci/docker@2.0.1
+
+
+commands:
+  destroy-cluster:
+    description: Destroy EKS Cluster.
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+
+    steps:
+      - run:
+          name: Destroy Environments
+          command: |
+             aws cloudformation delete-stack --stack-name eksctl-<< parameters.cluster-name >>-cluster --region us-east-2
+
+jobs:
+  lintcheck:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: python:3.7.3-stretch
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/backend
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv capstone
+            . ~/.capstone/bin/activate
+            make install
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+        
+
+      - run:
+          name: check environment
+          command: |
+            . ~/.capstone/bin/activate
+            make env
+
+      - run:
+          name: run lint
+          command: |
+            . ~/.capstone/bin/activate
+            make lint

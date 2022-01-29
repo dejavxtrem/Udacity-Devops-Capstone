@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+    image: dejavxtrem/frontend
+  reverseproxy: 
+    build:
+      context: .
+    image: dejavxtrem/reverseproxy
+  
+  backend:
+    build:
+      context: ../backend
+    image: dejavxtrem/backend
