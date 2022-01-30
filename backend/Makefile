@@ -34,6 +34,6 @@ lint:
 	#This is a linter for Python source code linter: https://www.pylint.org/
 	#This should be run from inside a virtualenv
 	#pylint --disable=R,C,W1203 app/app.py
-	pylint --disable=C0114,C0116,C0103,W1514,R1732,C0103,W1514,R1732,C0304,C0411,W0702,E0401,R1710  app.py
+	pylint --disable=C0114,C0116,C0103,W1514,R1732,C0103,W1514,R1732,C0304,C0411,W0702,E0401,R1710  backend/app.py
 
 all: install lint test
