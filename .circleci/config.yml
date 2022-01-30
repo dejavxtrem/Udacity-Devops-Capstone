@@ -296,4 +296,5 @@ workflows:
       #     cluster-name: capstone-devpos-cluster
       #     requires:
       #       - create-deployment-reverseproxy
-      - assign-loadBalancerIp
+      - assign-loadBalancerIp:
+          cluster-name: capstone-devpos-cluster
