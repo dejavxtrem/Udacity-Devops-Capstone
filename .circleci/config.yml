@@ -113,7 +113,7 @@ jobs:
     steps:
       - checkout
       - aws-eks/install-aws-iam-authenticator:
-          cluster-name: << parameters.cluster-name >>
+          release-tag: ''
       - run:
           name: Install the eksctl tool
           command: |
