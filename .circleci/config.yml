@@ -61,7 +61,7 @@ jobs:
       - run:
           name: run lint
           command: |
-            . capstone/bin/activate
+            . ~/.capstone/bin/activate
             make lint
 
 
