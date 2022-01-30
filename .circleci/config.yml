@@ -84,6 +84,24 @@ jobs:
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
             docker push dejavxtrem/frontend:latest
 
+  build-Docker-Push-backend:
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: build backend Image
+          command: |
+            # build backend image and tag it.
+            cd backend
+            docker build -t dejavxtrem/backend .
+            docker tag dejavxtrem/backend dejavxtrem/backend:latest
+      - run:
+          name: push frontend image to Docker hub
+          command: |
+            docker image ls
+            docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            docker push dejavxtrem/backend:latest
 workflows:
   deployments:
     jobs:
@@ -91,3 +109,7 @@ workflows:
       - build-Docker-Push-frontend:
           requires:
             - lintcheck
+      - build-Docker-Push-backend:
+          requires:
+            - build-Docker-Push-frontend
+            
