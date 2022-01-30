@@ -263,6 +263,27 @@ jobs:
             kubectl get services
             kubectl get pods
 
+  check-loadBalancerIp:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region:  $AWS_REGION
+      - run:
+          name: Get Pod details
+          command: |
+            echo "Getting pods details"
+            kubectl get services
+            kubectl get pods
+
+
 workflows:
   deployments:
     jobs:
@@ -296,5 +317,7 @@ workflows:
       #     cluster-name: capstone-devpos-cluster
       #     requires:
       #       - create-deployment-reverseproxy
-      - assign-loadBalancerIp:
+      # - assign-loadBalancerIp:
+      #     cluster-name: capstone-devpos-cluster
+      - check-loadBalancerIp:
           cluster-name: capstone-devpos-cluster
