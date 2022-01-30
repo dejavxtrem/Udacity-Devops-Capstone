@@ -55,7 +55,7 @@ jobs:
             chmod +x /bin/hadolint
       - save_cache:
           paths:
-            - ./backend/backend
+            - ./capstone/backend
           key: v1-dependencies-{{ checksum "requirements.txt" }}
         
       - run:
