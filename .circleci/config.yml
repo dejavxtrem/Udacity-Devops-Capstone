@@ -301,7 +301,7 @@ jobs:
           command: |
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
-            docker push dejavxtrem/frontend:latest:v2
+            docker push dejavxtrem/frontend:v2
 
  # rebuild frontend deployment
   create-deployment-frontend-again:
