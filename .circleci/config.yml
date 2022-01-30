@@ -27,6 +27,7 @@ commands:
              aws cloudformation delete-stack --stack-name eksctl-<< parameters.cluster-name >>-cluster --region us-east-2
 
 jobs:
+  # Lintcheck
   lintcheck:
     docker:
       # specify the version you desire here
@@ -64,7 +65,7 @@ jobs:
             source  ~/.capstone/bin/activate
             ls -l
             make lint
-
+  # Docker Push frontend
   build-Docker-Push-frontend:
     machine: true
     working_directory: ~/repo
@@ -83,7 +84,7 @@ jobs:
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
             docker push dejavxtrem/frontend:latest
-
+  # Docker push Backend
   build-Docker-Push-backend:
     machine: true
     working_directory: ~/repo
@@ -103,6 +104,7 @@ jobs:
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
             docker push dejavxtrem/backend:latest
 
+ # Create Cluster
   create-cluster:
     executor: aws-eks/python3
     parameters:
@@ -132,7 +134,27 @@ jobs:
             rmdir eksctl_download
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          node-type: t2.medium
+          node-type: t2.large
+
+
+  # Create Deployment
+  create-deployment-frontend:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployments/frontend-k8s/frontend-Deployment.yaml
+          resource-name: deployments/frontend
 
 workflows:
   deployments:
@@ -148,3 +170,7 @@ workflows:
           cluster-name: capstone-devpos-cluster
           requires:
             - build-Docker-Push-backend 
+      - create-deployment-frontend:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - create-cluster

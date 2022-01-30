@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: frontend
+  template:
+    metadata:
+      labels:
+        service: frontend
+        api: external        
+    spec:
+      containers:
+      - image: dejavxtrem/frontend
+        name: frontend
+        imagePullPolicy: Always          
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"                
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: frontend
+  name: frontend
+spec:
+  ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+  selector:
+    service: frontend
