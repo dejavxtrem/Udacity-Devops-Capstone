@@ -269,3 +269,5 @@ workflows:
             - create-deployment-backend
       - test-cluster-details:
           cluster-name: capstone-devpos-cluster
+          requires:
+            - create-deployment-reverseproxy
