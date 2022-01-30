@@ -31,7 +31,7 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.7.3-stretch
+      - image: python:3.7.3-stretch
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -49,20 +49,20 @@ jobs:
             ls -l
             cd backend
             python3 -m venv ~/.capstone
-            . ~/.capstone/bin/activate
+            . capstone/bin/activate
             make install
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+
       - save_cache:
           paths:
-            - .~/.capstone/backend
+            - ./capstone
           key: v1-dependencies-{{ checksum "requirements.txt" }}
         
       - run:
           name: run lint
           command: |
-            pwd
-            ls -l
-            cd backend
-            . ~/.capstone/bin/activate
+            . capstone/bin/activate
             make lint
 
 
