@@ -61,7 +61,7 @@ jobs:
           name: run lint
           command: |
             pwd
-            . ~/.capstone/bin/activate
+            source  ~/.capstone/bin/activate
             ls -l
             make lint
 
