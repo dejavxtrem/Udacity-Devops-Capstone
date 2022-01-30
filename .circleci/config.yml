@@ -73,15 +73,15 @@ jobs:
       - run:
           name: build frontend Image
           command: |
-          # build frontend image and tag it.
-          cd frontend
-          docker build -t dejavxtrem/frontend .
-          docker tag dejavxtrem/frontend dejavxtrem/frontend:latest
+            # build frontend image and tag it.
+            cd frontend
+            docker build -t dejavxtrem/frontend .
+            docker tag dejavxtrem/frontend dejavxtrem/frontend:latest
       - run:
           name: push frontend image to Docker hub
-          docker image ls
-          docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
-          docker push dejavxtrem/frontend:latest
+            docker image ls
+            docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            docker push dejavxtrem/frontend:latest
 
 workflows:
   deployments:
