@@ -247,7 +247,7 @@ workflows:
             - lintcheck
       - build-Docker-Push-frontend:
           requires:
-            - build-Docker-reverseproxy-udagram
+            - build-Docker-reverseproxy
       - build-Docker-Push-backend:
           requires:
             - build-Docker-Push-frontend
