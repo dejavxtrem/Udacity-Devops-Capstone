@@ -242,7 +242,7 @@ workflows:
   deployments:
     jobs:
       - lintcheck
-      - build-Docker-reverseproxy-udagram:
+      - build-Docker-reverseproxy:
           requires:
             - lintcheck
       - build-Docker-Push-frontend:
