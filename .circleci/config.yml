@@ -62,6 +62,7 @@ jobs:
           command: |
             pwd
             . ~/.capstone/bin/activate
+            ls -l
             make lint
 
 
