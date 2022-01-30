@@ -362,8 +362,10 @@ workflows:
       - check-loadBalancerIp:
           cluster-name: capstone-devpos-cluster
       - rebuild-frontend-image:
-          requires: check-loadBalancerIp
+          requires:
+            - check-loadBalancerIp
       - create-deployment-frontend-again:
           cluster-name: capstone-devpos-cluster
-          requires: rebuild-frontend-image
+          requires:
+            - rebuild-frontend-image
           
