@@ -130,7 +130,7 @@ jobs:
             fi
             $SUDO mv eksctl_download/eksctl /usr/local/bin/
             rmdir eksctl_download
-      - aws-eks/install-aws-iam-authenticator:
+      - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
           node-type: t2.medium
 
