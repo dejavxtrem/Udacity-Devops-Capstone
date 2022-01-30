@@ -114,14 +114,14 @@ jobs:
           command: |
             # build backend image and tag it.
             cd deployments
-            docker build -t dejavxtrem/reverseproxy .
-            docker tag dejavxtrem/reverseproxy dejavxtrem/reverseproxy:latest
+            docker build -t dejavxtrem/reverseproxy_udacity .
+            docker tag dejavxtrem/reverseproxy_udacity dejavxtrem/reverseproxy_udacity:latest
       - run:
           name: push reverse proxy image to Docker hub
           command: |
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
-            docker push dejavxtrem/reverseproxy:latest
+            docker push dejavxtrem/reverseproxy_udacity:latest
 
  # Create Cluster
   create-cluster:
@@ -242,28 +242,30 @@ workflows:
   deployments:
     jobs:
       - lintcheck
-      - build-Docker-Push-frontend:
+      - build-Docker-reverseproxy-udagram:
           requires:
             - lintcheck
+      - build-Docker-Push-frontend:
+          requires:
+            - build-Docker-reverseproxy-udagram
       - build-Docker-Push-backend:
           requires:
             - build-Docker-Push-frontend
-      # - create-cluster:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - build-Docker-Push-backend 
-      - build-Docker-reverseproxy
+      - create-cluster:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - build-Docker-Push-backend 
       - create-deployment-frontend:
           cluster-name: capstone-devpos-cluster
-          # requires:
-          #   - create-cluster
+          requires:
+            - create-cluster
       - create-deployment-backend:
           cluster-name: capstone-devpos-cluster
-          # requires:
-          #   - create-cluster
+          requires:
+            - create-deployment-frontend
       - create-deployment-reverseproxy:
           cluster-name: capstone-devpos-cluster
-          # requires:
-          #   - create-cluster
+          requires:
+            - create-deployment-backend
       - test-cluster-details:
           cluster-name: capstone-devpos-cluster

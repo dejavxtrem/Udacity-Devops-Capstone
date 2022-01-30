@@ -15,7 +15,7 @@ spec:
         app: reverseproxy
     spec:
       containers:
-      - image: dejavxtrem/reverseproxy
+      - image: dejavxtrem/reverseproxy_udacity
         name: reverseproxy
         imagePullPolicy: Always          
         resources:
