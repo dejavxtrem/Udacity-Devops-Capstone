@@ -103,6 +103,25 @@ jobs:
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
             docker push dejavxtrem/backend:latest
+ # build reverse proxy
+  build-Docker-reverseproxy:
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: build backend Image
+          command: |
+            # build backend image and tag it.
+            cd deployments
+            docker build -t dejavxtrem/reverseproxy .
+            docker tag dejavxtrem/reverseproxy dejavxtrem/reverseproxy:latest
+      - run:
+          name: push frontend image to Docker hub
+          command: |
+            docker image ls
+            docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            docker push dejavxtrem/reverseproxy :latest
 
  # Create Cluster
   create-cluster:
@@ -156,21 +175,95 @@ jobs:
           resource-file-path: deployments/frontend/frontend-Deployment.yaml
           resource-name: deployments/frontend
 
+# Create deployment backend
+  create-deployment-backend:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployments/backend/backend-Deployment.yaml
+          resource-name: deployments/backend
+
+
+# create deployment reverseproxy
+  create-deployment-reverseproxy:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployments/reverseproxy/reverse-Deployment.yaml
+          resource-name: deployments/reverseproxy
+
+  # Get k8 deployment and cluster details
+  test-cluster-details:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region:  $AWS_REGION
+      - run:
+          name: check k8 servers and deployment details
+          command: |
+            echo "Getting different cluster details"
+            kubectl get services
+            kubectl get pods
+            kubectl describe pods
+            kubectl get nodes
+            kubectl get deployment
+            kubectl get services -o wide
 workflows:
   deployments:
     jobs:
-      # - lintcheck
-      # - build-Docker-Push-frontend:
-      #     requires:
-      #       - lintcheck
-      # - build-Docker-Push-backend:
-      #     requires:
-      #       - build-Docker-Push-frontend
+      - lintcheck
+      - build-Docker-Push-frontend:
+          requires:
+            - lintcheck
+      - build-Docker-Push-backend:
+          requires:
+            - build-Docker-Push-frontend
       # - create-cluster:
       #     cluster-name: capstone-devpos-cluster
       #     requires:
       #       - build-Docker-Push-backend 
+      - create-deployment-reverseproxy
       - create-deployment-frontend:
           cluster-name: capstone-devpos-cluster
           # requires:
           #   - create-cluster
+      - create-deployment-backend:
+          cluster-name: capstone-devpos-cluster
+          # requires:
+          #   - create-cluster
+      - create-deployment-reverseproxy:
+          cluster-name: capstone-devpos-cluster
+          # requires:
+          #   - create-cluster
+      - test-cluster-details:
+          cluster-name: capstone-devpos-cluster
