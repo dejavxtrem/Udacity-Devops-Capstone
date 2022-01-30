@@ -252,7 +252,7 @@ workflows:
       #     cluster-name: capstone-devpos-cluster
       #     requires:
       #       - build-Docker-Push-backend 
-      - create-deployment-reverseproxy
+      - build-Docker-reverseproxy
       - create-deployment-frontend:
           cluster-name: capstone-devpos-cluster
           # requires:
