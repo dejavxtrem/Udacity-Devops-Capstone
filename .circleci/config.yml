@@ -62,7 +62,6 @@ jobs:
           name: run lint
           command: |
             . ~/.capstone/bin/activate
-            cd backend
             make lint
 
 
