@@ -239,6 +239,7 @@ jobs:
             kubectl get deployment
             kubectl get services -o wide
 
+ # Assign load balancer
   assign-loadBalancerIp:
     executor: aws-eks/python3
     parameters:
@@ -262,7 +263,7 @@ jobs:
             kubectl expose deployment reverseproxy --type=LoadBalancer --name=publicreverseproxy
             kubectl get services
             kubectl get pods
-
+  # check load balancer IP
   check-loadBalancerIp:
     executor: aws-eks/python3
     parameters:
@@ -283,6 +284,45 @@ jobs:
             kubectl get services
             kubectl get pods
 
+  #rebuild frontend with new image
+  rebuild-frontend-image:
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: rebuild frontend Image with Ip
+          command: |
+            # build frontend image and tag it.
+            cd frontend
+            docker build . -t dejavxtrem/frontend:v2
+      - run:
+          name: push frontend image to Docker hub
+          command: |
+            docker image ls
+            docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            docker push dejavxtrem/frontend:latest:v2
+
+ # rebuild frontend deployment
+  create-deployment-frontend-again:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployments/frontend/frontend-Deployment.yaml
+          resource-name: deployments/frontend
+
+  
 
 workflows:
   deployments:
@@ -321,3 +361,9 @@ workflows:
       #     cluster-name: capstone-devpos-cluster
       - check-loadBalancerIp:
           cluster-name: capstone-devpos-cluster
+      - rebuild-frontend-image:
+          requires: check-loadBalancerIp
+      - create-deployment-frontend-again:
+          cluster-name: capstone-devpos-cluster
+          requires: rebuild-frontend-image
+          
