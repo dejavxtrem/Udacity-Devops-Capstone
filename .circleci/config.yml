@@ -79,6 +79,7 @@ jobs:
             docker tag dejavxtrem/frontend dejavxtrem/frontend:latest
       - run:
           name: push frontend image to Docker hub
+          command: |
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
             docker push dejavxtrem/frontend:latest
