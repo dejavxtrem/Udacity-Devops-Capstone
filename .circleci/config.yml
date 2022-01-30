@@ -159,18 +159,18 @@ jobs:
 workflows:
   deployments:
     jobs:
-      - lintcheck
-      - build-Docker-Push-frontend:
-          requires:
-            - lintcheck
-      - build-Docker-Push-backend:
-          requires:
-            - build-Docker-Push-frontend
-      - create-cluster:
-          cluster-name: capstone-devpos-cluster
-          requires:
-            - build-Docker-Push-backend 
+      # - lintcheck
+      # - build-Docker-Push-frontend:
+      #     requires:
+      #       - lintcheck
+      # - build-Docker-Push-backend:
+      #     requires:
+      #       - build-Docker-Push-frontend
+      # - create-cluster:
+      #     cluster-name: capstone-devpos-cluster
+      #     requires:
+      #       - build-Docker-Push-backend 
       - create-deployment-frontend:
           cluster-name: capstone-devpos-cluster
-          requires:
-            - create-cluster
+          # requires:
+          #   - create-cluster
