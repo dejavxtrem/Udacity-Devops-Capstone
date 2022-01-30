@@ -117,11 +117,11 @@ jobs:
             docker build -t dejavxtrem/reverseproxy .
             docker tag dejavxtrem/reverseproxy dejavxtrem/reverseproxy:latest
       - run:
-          name: push frontend image to Docker hub
+          name: push reverse proxy image to Docker hub
           command: |
             docker image ls
             docker login -u $DOCKER_USERNAME --password $DOCKER_PASSWORD
-            docker push dejavxtrem/reverseproxy :latest
+            docker push dejavxtrem/reverseproxy:latest
 
  # Create Cluster
   create-cluster:
