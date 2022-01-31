@@ -326,8 +326,7 @@ jobs:
 # delete cluster
 
   undeploy-cluster-application:
-    docker:
-      - image: cimg/python:3.7.3-stretch
+    executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
@@ -344,7 +343,9 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           aws-region:  << parameters.aws-region >>
-      - delete-cluster:
+      - kubernetes/delete-resource:
+          resource-types: "deployment,service"
+          label-selector: "app=CAPSTONE"
           cluster-name: << parameters.cluster-name >>
           wait: true
       - run:
@@ -367,47 +368,47 @@ jobs:
 workflows:
   deployments:
     jobs:
-      # - lintcheck
-      # - build-Docker-reverseproxy:
-      #     requires:
-      #       - lintcheck
-      # - build-Docker-Push-frontend:
-      #     requires:
-      #       - build-Docker-reverseproxy
-      # - build-Docker-Push-backend:
-      #     requires:
-      #       - build-Docker-Push-frontend
-      # - create-cluster:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - build-Docker-Push-backend 
-      # - create-deployment-frontend:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - create-cluster
-      # - create-deployment-backend:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - create-deployment-frontend
-      # - create-deployment-reverseproxy:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - create-deployment-backend
+      - lintcheck
+      - build-Docker-reverseproxy:
+          requires:
+            - lintcheck
+      - build-Docker-Push-frontend:
+          requires:
+            - build-Docker-reverseproxy
+      - build-Docker-Push-backend:
+          requires:
+            - build-Docker-Push-frontend
+      - create-cluster:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - build-Docker-Push-backend 
+      - create-deployment-frontend:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - create-cluster
+      - create-deployment-backend:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - create-deployment-frontend
+      - create-deployment-reverseproxy:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - create-deployment-backend
       - test-cluster-details:
           cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - create-deployment-reverseproxy
-      # - assign-loadBalancerIp:
-      #     cluster-name: capstone-devpos-cluster
-      # - check-loadBalancerIp:
-      #     cluster-name: capstone-devpos-cluster
-      # - rebuild-frontend-image:
-      #     requires:
-      #       - check-loadBalancerIp
-      # - create-deployment-frontend-again:
-      #     cluster-name: capstone-devpos-cluster
-      #     requires:
-      #       - rebuild-frontend-image
+          requires:
+            - create-deployment-reverseproxy
+      - assign-loadBalancerIp:
+          cluster-name: capstone-devpos-cluster
+      - check-loadBalancerIp:
+          cluster-name: capstone-devpos-cluster
+      - rebuild-frontend-image:
+          requires:
+            - check-loadBalancerIp
+      - create-deployment-frontend-again:
+          cluster-name: capstone-devpos-cluster
+          requires:
+            - rebuild-frontend-image
       - undeploy-cluster-application:
           cluster-name: capstone-devpos-cluster
           aws-region: $AWS_DEFAULT_REGION
