@@ -339,9 +339,9 @@ jobs:
         default: "us-east-2"
     steps:
       - checkout
-      - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
           aws-region:  << parameters.aws-region >>
       - kubernetes/delete-resource:
           resource-types: "deployment,service"
@@ -393,8 +393,8 @@ workflows:
       #     cluster-name: capstone-devpos-cluster
       #     requires:
       #       - create-deployment-backend
-      # - test-cluster-details:
-      #     cluster-name: capstone-devpos-cluster
+      - test-cluster-details:
+          cluster-name: capstone-devpos-cluster
       #     requires:
       #       - create-deployment-reverseproxy
       # - assign-loadBalancerIp:
@@ -411,4 +411,6 @@ workflows:
       - undeploy-cluster-application:
           cluster-name: capstone-devpos-cluster
           aws-region: $AWS_DEFAULT_REGION
+          requires:
+            - test-cluster-details
          
