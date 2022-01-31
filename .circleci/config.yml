@@ -284,6 +284,8 @@ jobs:
             kubectl get services
             kubectl get pods
 
+  
+
   #rebuild frontend with new image
   rebuild-frontend-image:
     machine: true
@@ -322,7 +324,44 @@ jobs:
           resource-file-path: deployments/frontend/frontend-Deployment.yaml
           resource-name: deployments/frontend
 
-  
+  undeploy-cluster-application:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: "us-east-2"
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region:  << parameters.aws-region >>
+      - kubernetes/delete-resource:
+          resource-types: "deployment,service"
+          label-selector: "app=CAPSTONE"
+          wait: true
+      - run:
+          name: Get Pod details
+          command: |
+            echo "Getting pods details"
+            kubectl get services
+            kubectl get pods
+
+      - run:
+          name: Check on pod status
+          command: |
+            kubectl get pods
+            kubectl get nodes
+      - destroy-cluster:
+          cluster-name: << parameters.cluster-name >>
+
+
 
 workflows:
   deployments:
@@ -359,13 +398,16 @@ workflows:
       #       - create-deployment-reverseproxy
       # - assign-loadBalancerIp:
       #     cluster-name: capstone-devpos-cluster
-      - check-loadBalancerIp:
+      # - check-loadBalancerIp:
+      #     cluster-name: capstone-devpos-cluster
+      # - rebuild-frontend-image:
+      #     requires:
+      #       - check-loadBalancerIp
+      # - create-deployment-frontend-again:
+      #     cluster-name: capstone-devpos-cluster
+      #     requires:
+      #       - rebuild-frontend-image
+      - undeploy-cluster-application:
           cluster-name: capstone-devpos-cluster
-      - rebuild-frontend-image:
-          requires:
-            - check-loadBalancerIp
-      - create-deployment-frontend-again:
-          cluster-name: capstone-devpos-cluster
-          requires:
-            - rebuild-frontend-image
-          
+          aws-region: $AWS_DEFAULT_REGION
+         
