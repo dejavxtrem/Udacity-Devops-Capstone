@@ -16,7 +16,7 @@ spec:
         api: external        
     spec:
       containers:
-      - image: dejavxtrem/frontend:v2
+      - image: dejavxtrem/frontend
         name: frontend
         imagePullPolicy: Always          
         ports:

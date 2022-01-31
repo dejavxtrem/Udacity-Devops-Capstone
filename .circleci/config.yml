@@ -400,15 +400,12 @@ workflows:
             - create-deployment-reverseproxy
       - assign-loadBalancerIp:
           cluster-name: capstone-devpos-cluster
+          requires:
+            - test-cluster-details
       - check-loadBalancerIp:
           cluster-name: capstone-devpos-cluster
-      - rebuild-frontend-image:
           requires:
-            - check-loadBalancerIp
-      - create-deployment-frontend-again:
-          cluster-name: capstone-devpos-cluster
-          requires:
-            - rebuild-frontend-image
+            - assign-loadBalancerIp
       - undeploy-cluster-application:
           cluster-name: capstone-devpos-cluster
           aws-region: $AWS_DEFAULT_REGION
