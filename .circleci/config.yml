@@ -326,7 +326,8 @@ jobs:
 # delete cluster
 
   undeploy-cluster-application:
-    executor: aws-eks/python3
+    docker:
+      - image: cimg/python:3.7.3-stretch
     parameters:
       cluster-name:
         description: |
@@ -343,9 +344,8 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           aws-region:  << parameters.aws-region >>
-      - kubernetes/delete-resource:
-          resource-types: "deployment,service"
-          label-selector: "app=CAPSTONE"
+      - delete-cluster:
+          cluster-name: << parameters.cluster-name >>
           wait: true
       - run:
           name: Get Pod details
