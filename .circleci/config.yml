@@ -346,7 +346,6 @@ jobs:
       - kubernetes/delete-resource:
           resource-types: "deployment,service"
           label-selector: "app=CAPSTONE"
-          cluster-name: << parameters.cluster-name >>
           wait: true
       - run:
           name: Get Pod details
