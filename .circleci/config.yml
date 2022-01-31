@@ -323,6 +323,7 @@ jobs:
           get-rollout-status: false
           resource-file-path: deployments/frontend/frontend-Deployment.yaml
           resource-name: deployments/frontend
+# delete cluster
 
   undeploy-cluster-application:
     executor: aws-eks/python3
